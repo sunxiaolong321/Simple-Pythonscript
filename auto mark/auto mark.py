@@ -35,8 +35,8 @@ def pingfen():
 driver = webdriver.Chrome()
 driver.get(
     'http://211.64.32.195/jwglxt/xtgl/login_slogin.html?language=zh_CN&_t=1560961556524')
-driver.find_element_by_id('yhm').send_keys('201601400068')
-driver.find_element_by_id('mm').send_keys('sxl.1712992354')
+driver.find_element_by_id('yhm').send_keys('学号')
+driver.find_element_by_id('mm').send_keys('密码')
 driver.find_element_by_id('dl').click()
 driver.find_element_by_link_text('教学评价').click()
 # driver.switch_to_frame('_blank')
