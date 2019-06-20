@@ -1,6 +1,6 @@
 # auto mark|德州学院教务系统自动教师评价脚本
 
-## Requests
+## Request
 
 * Chromedriver  
 * pyquery

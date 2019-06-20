@@ -1,0 +1,78 @@
+#_*_encoding:utf-8_*_
+from docx import Document
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
+from io import StringIO
+import os
+
+# 使用os.listdir单个目录遍历
+'''
+def find_dir(path=''):
+    print('cur dir:%s' % os.path.abspath(path))
+    for filename in os.listdir(path):
+        deeper_dir = os.path.join(path,filename)
+        if os.path.isfile(deeper_dir):
+            if filename[-7:-5]=='习题':
+                print('xiti')
+                yield '习题'
+        if os.path.isdir(deeper_dir):
+            print(deeper_dir)
+            yield from find_dir(deeper_dir)
+'''
+
+# os.work遍历所有目录
+def detect_walk(dir_path):
+    for root, dirs, files in os.walk(dir_path):
+        for dirname in files:
+            if dirname[-7:-5]=='习题' and dirname.endswith('pdf'):
+                yield  dirname,os.path.join(root,dirname)
+
+
+# 读取pdf
+def readPDF(path):
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    fp = open(path, 'rb')
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    password = ""
+    maxpages = 0
+    caching = True
+    pagenos=set()
+
+    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):
+        interpreter.process_page(page)
+
+    text = retstr.getvalue()
+
+    fp.close()
+    device.close()
+    retstr.close()
+    return text
+
+
+# 加入标题和文本内容
+def save_docx(path,file):
+    document = Document()
+    for title,pdf in detect_walk(path):
+        document.add_heading(title[:-8], 0)
+        for t in readPDF(pdf.replace('\\', '/')).split('\n'):
+            if len(t)>=3:
+                document.add_paragraph(t)
+    document.save(file)
+
+
+# 保存到pdf
+def save_pdf(path, file):
+    save_docx(path,file)
+    # outfile = 'C:/Users/SXL47/Desktop/实验心理学/习题.pdf'
+
+
+if __name__=='__main__':
+    path = ''
+    file = ''
+    save_pdf(path, file)
